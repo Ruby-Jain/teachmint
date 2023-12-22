@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { useFetch } from "../hooks/useFetch";
+import { useEffect,useState } from "react";
 
 export default function UserDetails() {
   let { id } = useParams();
@@ -14,10 +15,37 @@ export default function UserDetails() {
   } = useFetch(`  https://jsonplaceholder.typicode.com/posts?userId=${id}`);
 
   console.log(data);
+  const [clock, setClock] = useState({
+    time: new Date(),
+    paused: false,
+  });
+  useEffect(() => {
+    // Clock interval logic
+    let intervalId;
+
+    if (!clock.paused) {
+      intervalId = setInterval(() => {
+        setClock(prevClock => ({ ...prevClock, time: new Date() }));
+      }, 1000);
+    }
+
+    return () => clearInterval(intervalId);
+  }, [clock.paused]);
+  const toggleClock = () => {
+    setClock(prevClock => ({ ...prevClock, paused: !prevClock.paused }));
+  };
 
   return (
     <>
       <Link to="/">Back</Link>
+      {/* Clock Section */}
+      <div className="clock-section">
+            <h2>Clock</h2>
+            <p>{clock.time.toLocaleTimeString()}</p>
+            <button onClick={toggleClock}>{clock.paused ? 'Start' : 'Pause'}</button>
+            <br />
+            
+          </div>
       {isLoading && <h2>Loading ...</h2>}
 
       {error && <h2>Something went wrong ...</h2>}
